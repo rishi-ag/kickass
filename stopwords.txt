@@ -1,173 +1,312 @@
-a
-about
-above
-after
-again
-against
-all
-am
-an
-and
-any
-are
+
+ | An English stop word list. Comments begin with vertical bar. Each stop
+ | word is at the start of a line.
+
+ | Many of the forms below are quite rare (e.g. "yourselves") but included for
+ |  completeness.
+
+           | PRONOUNS FORMS
+             | 1st person sing
+
+i              | subject, always in upper case of course
+
+me             | object
+my             | possessive adjective
+               | the possessive pronoun `mine' is best suppressed, because of the
+               | sense of coal-mine etc.
+myself         | reflexive
+             | 1st person plural
+we             | subject
+
+| us           | object
+               | care is required here because US = United States. It is usually
+               | safe to remove it if it is in lower case.
+our            | possessive adjective
+ours           | possessive pronoun
+ourselves      | reflexive
+             | second person (archaic `thou' forms not included)
+you            | subject and object
+your           | possessive adjective
+yours          | possessive pronoun
+yourself       | reflexive (singular)
+yourselves     | reflexive (plural)
+             | third person singular
+he             | subject
+him            | object
+his            | possessive adjective and pronoun
+himself        | reflexive
+
+she            | subject
+her            | object and possessive adjective
+hers           | possessive pronoun
+herself        | reflexive
+
+it             | subject and object
+its            | possessive adjective
+itself         | reflexive
+             | third person plural
+they           | subject
+them           | object
+their          | possessive adjective
+theirs         | possessive pronoun
+themselves     | reflexive
+             | other forms (demonstratives, interrogatives)
+what
+which
+who
+whom
+this
+that
+these
+those
+
+           | VERB FORMS (using F.R. Palmer's nomenclature)
+             | BE
+am             | 1st person, present
+is             | -s form (3rd person, present)
+are            | present
+was            | 1st person, past
+were           | past
+be             | infinitive
+been           | past participle
+being          | -ing form
+             | HAVE
+have           | simple
+has            | -s form
+had            | past
+having         | -ing form
+             | DO
+do             | simple
+does           | -s form
+did            | past
+doing          | -ing form
+
+ | The forms below are, I believe, best omitted, because of the significant
+ | homonym forms:
+
+ |  He made a WILL
+ |  old tin CAN
+ |  merry month of MAY
+ |  a smell of MUST
+ |  fight the good fight with all thy MIGHT
+
+ | would, could, should, ought might however be included
+
+ |          | AUXILIARIES
+ |            | WILL
+ |will
+
+would
+
+ |            | SHALL
+ |shall
+
+should
+
+ |            | CAN
+ |can
+
+could
+
+ |            | MAY
+ |may
+ |might
+ |            | MUST
+ |must
+ |            | OUGHT
+
+ought
+
+           | COMPOUND FORMS, increasingly encountered nowadays in 'formal' writing
+              | pronoun + verb
+
+i'm
+you're
+he's
+she's
+it's
+we're
+they're
+i've
+you've
+we've
+they've
+i'd
+you'd
+he'd
+she'd
+we'd
+they'd
+i'll
+you'll
+he'll
+she'll
+we'll
+they'll
+
+              | verb + negation
+
+isn't
 aren't
-as
-at
-be
-because
-been
-before
-being
-below
-between
-both
-but
-by
+wasn't
+weren't
+hasn't
+haven't
+hadn't
+doesn't
+don't
+didn't
+
+              | auxiliary + negation
+
+won't
+wouldn't
+shan't
+shouldn't
 can't
 cannot
-could
 couldn't
-did
-didn't
-do
-does
-doesn't
-doing
-don't
-down
+mustn't
+
+             | miscellaneous forms
+
+let's
+that's
+who's
+what's
+here's
+there's
+when's
+where's
+why's
+how's
+
+              | rarer forms
+
+ | daren't needn't
+
+              | doubtful forms
+
+ | oughtn't mightn't
+
+           | ARTICLES
+a
+an
+the
+
+           | THE REST (Overlap among prepositions, conjunctions, adverbs etc is so
+           | high, that classification is pointless.)
+and
+but
+if
+or
+because
+as
+until
+while
+
+of
+at
+by
+for
+with
+about
+against
+between
+into
+through
 during
+before
+after
+above
+below
+to
+from
+up
+down
+in
+out
+on
+off
+over
+under
+
+again
+further
+then
+once
+
+here
+there
+when
+where
+why
+how
+
+all
+any
+both
 each
 few
-for
-from
-further
-had
-hadn't
-has
-hasn't
-have
-haven't
-having
-he
-he'd
-he'll
-he's
-her
-here
-here's
-hers
-herself
-him
-himself
-his
-how
-how's
-i
-i'd
-i'll
-i'm
-i've
-if
-in
-into
-is
-isn't
-it
-it's
-its
-itself
-let's
-me
 more
 most
-mustn't
-my
-myself
+other
+some
+such
+
 no
 nor
 not
-of
-off
-on
-once
 only
-or
-other
-ought
-our
-oursourselves
-out
-over
 own
 same
-shan't
-she
-she'd
-she'll
-she's
-should
-shouldn't
 so
-some
-such
 than
-that
-that's
-the
-their
-theirs
-them
-themselves
-then
-there
-there's
-these
-they
-they'd
-they'll
-they're
-they've
-this
-those
-through
-to
 too
-under
-until
-up
 very
-was
-wasn't
-we
-we'd
-we'll
-we're
-we've
-were
-weren't
-what
-what's
-when
-when's
-where
-where's
-which
-while
-who
-who's
-whom
-why
-why's
-with
-won't
-would
-wouldn't
-you
-you'd
-you'll
-you're
-you've
-your
-yours
-yourself
-yourselves
+
+ | Just for the record, the following words are among the commonest in English
+
+    | one
+    | every
+    | least
+    | less
+    | many
+    | now
+    | ever
+    | never
+    | say
+    | says
+    | said
+    | also
+    | get
+    | go
+    | goes
+    | just
+    | made
+    | make
+    | put
+    | see
+    | seen
+    | whether
+    | like
+    | well
+    | back
+    | even
+    | still
+    | way
+    | take
+    | since
+    | another
+    | however
+    | two
+    | three
+    | four
+    | five
+    | first
+    | second
+    | new
+    | old
+    | high
+    | long
+
