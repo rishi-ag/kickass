@@ -18,5 +18,3 @@ Question 4: Scraping Kickstarter for successful project information
 					1.)project_successful_detail.json ---detailed info about successful 										      kickstarter projects
 						****Note: Only included 500 project records from scraped 								URLS for homework  submission, but will have 								more/all for final project
 
-Github repository: https://github.com/rishi1226/kickass.git
-
