@@ -1,5 +1,6 @@
 import numpy as np
 import codecs
+import nltk
 
 class RawDocs():
     
