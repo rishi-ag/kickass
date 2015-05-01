@@ -1,2 +1,2 @@
-class Project:
+gclass Project:
     
