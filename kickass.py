@@ -2,9 +2,8 @@ import numpy as np
 import codecs
 import nltk
 
-class RawDocs():
+class ProjectCollection():
     
-    docid = 0
     """ The RawDocs class rpresents a class of document collections
      
     """
@@ -12,14 +11,14 @@ class RawDocs():
 
         self.docs = []
         for doc in doc_data :
-            self.docs.append(Doc(RawDocs.docid, doc[2], doc[1], doc[0]))
-            RawDocs.docid += 1
+            self.docs.append(Project(pid, doc[2], doc[1], doc[0]))
+            RawDocs.pid += 1
 
         with codecs.open(stopword_file,'r','utf-8') as f: raw = f.read()
         self.stopwords = set(raw.splitlines())
 
         self.N = len(self.docs)
-        RawDocs.docid = 0
+        RawDocs.pid = 0
         
     def clean_docs(self, length):
         """ 
@@ -34,7 +33,7 @@ class RawDocs():
         word count frequency of dictionary in document collection
         """
         
-        return ({(doc.docid, doc.year, doc.author) : \
+        return ({(doc.pid, doc.year, doc.author) : \
                  doc.tf(dictionary) for doc in self.docs})
     
     def idf(self, dictionary):
@@ -58,8 +57,8 @@ class RawDocs():
         tf_idf_docs = dict()
         
         for doc in self.docs:
-            tf_idf_docs[(doc.docid, doc.year, doc.author) ] = \
-            np.log(tf[(doc.docid, doc.year, doc.author)] + 1) * idf
+            tf_idf_docs[(doc.pid, doc.year, doc.author) ] = \
+            np.log(tf[(doc.pid, doc.year, doc.author)] + 1) * idf
             
         return(tf_idf_docs)
     
@@ -100,17 +99,16 @@ import re
 from nltk.tokenize import wordpunct_tokenize
 from nltk import PorterStemmer
 
-class Doc():
+class Project():
     
     """ The Doc class rpresents a class of individula documents
     
     """
     
-    def __init__(self, docid, doc, author, year):
-        self.docid = docid
-        self.text = doc.lower()
-        self.text = re.sub(u'[\u2019\']', '', self.text)
-        self.tokens = np.array(wordpunct_tokenize(self.text))
+    def __init__(self, project_dict):
+        self.pid = project_dict['id']
+        self.blurb = re.sub(u'[\u2019\']', '', project_dict['blurb'].lower())
+        self.blurb_tokens = np.array(wordpunct_tokenize(self.blurb))
         self.stem = None
         self.author = author
         self.year = year
@@ -124,7 +122,7 @@ class Doc():
         count = np.zeros(len(wordlist))
         
         for wid, word in np.ndenumerate(wordlist):
-            count[wid] = (self.tokens == word).sum()
+            count[wid] = (self.blurb_tokens == word).sum()
         return count
         
     
@@ -137,7 +135,7 @@ class Doc():
         is_word = np.zeros(len(wordlist))
         
         for wid, word in np.ndenumerate(wordlist):
-            if word in self.tokens:
+            if word in self.blurb_tokens:
                 is_word[wid] = 1
         return is_word
             
@@ -147,7 +145,7 @@ class Doc():
         strip out non-alpha tokens and length one tokens
         """
 
-        self.tokens = np.array([t for t in self.tokens if (t.isalpha() and len(t) > length)])
+        self.blurb_tokens = np.array([t for t in self.blurb_tokens if (t.isalpha() and len(t) > length)])
 
 
     def stopword_remove(self, stopwords):
@@ -157,7 +155,7 @@ class Doc():
         """
 
         
-        self.tokens = np.array([t for t in self.tokens if t not in stopwords])
+        self.blurb_tokens = np.array([t for t in self.blurb_tokens if t not in stopwords])
 
 
     def stem(self):
@@ -166,6 +164,6 @@ class Doc():
         Stem tokens with Porter Stemmer.
         """
         
-        self.stems = n.array([PorterStemmer().stem(t) for t in self.tokens])
+        self.stems = n.array([PorterStemmer().stem(t) for t in self.blurb_tokens])
 
 
