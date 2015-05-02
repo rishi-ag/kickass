@@ -9,16 +9,12 @@ class ProjectCollection():
     """
     def __init__(self, doc_data, stopword_file):
 
-        self.docs = []
-        for doc in doc_data :
-            self.docs.append(Project(pid, doc[2], doc[1], doc[0]))
-            RawDocs.pid += 1
+        self.docs = [Project(doc) for doc in doc_data] 
 
         with codecs.open(stopword_file,'r','utf-8') as f: raw = f.read()
         self.stopwords = set(raw.splitlines())
 
         self.N = len(self.docs)
-        RawDocs.pid = 0
         
     def clean_docs(self, length):
         """ 
@@ -27,13 +23,14 @@ class ProjectCollection():
         for doc in self.docs:
             doc.token_clean(length)
             doc.stopword_remove(self.stopwords)
+            doc.stem()
             
     def count(self, dictionary):
         """ 
         word count frequency of dictionary in document collection
         """
         
-        return ({(doc.pid, doc.year, doc.author) : \
+        return ({(doc.pid) : \
                  doc.tf(dictionary) for doc in self.docs})
     
     def idf(self, dictionary):
@@ -44,7 +41,14 @@ class ProjectCollection():
         
         is_word_docs = np.array([doc.word_exists(dictionary) for doc in self.docs])
         
-        return(np.log(self.N / sum([is_word for is_word in is_word_docs])))
+        asum = sum([is_word for is_word in is_word_docs])
+        asum = sum(asum)
+        if asum != 0:
+            idf_list = np.log(self.N / asum )
+        else:
+            idf_list = np.zeros(len(dictionary))
+            
+        return idf_list
     
     def tf_idf(self, dictionary):
         """ 
@@ -57,12 +61,12 @@ class ProjectCollection():
         tf_idf_docs = dict()
         
         for doc in self.docs:
-            tf_idf_docs[(doc.pid, doc.year, doc.author) ] = \
-            np.log(tf[(doc.pid, doc.year, doc.author)] + 1) * idf
+            tf_idf_docs[doc.pid] = \
+            np.log(tf[doc.pid] + 1) * idf
             
         return(tf_idf_docs)
     
-    def rank_tfidf(self, dictionary):
+    def rank_tfidf(self, dictionary, top):
         
         """
         Calculates document rank based on tfidf
@@ -74,10 +78,10 @@ class ProjectCollection():
         
         doc_rank.sort(key=lambda x: x[1], reverse = True)
         
-        return(doc_rank)   
+        return(doc_rank[0:(top + 1)])   
         #return(np.sort(np.array(doc_rank), axis=0)[::-1])
     
-    def rank_count(self, dictionary):
+    def rank_count(self, dictionary, top):
         
         """
         Calculates document rank based on word frequency
@@ -89,7 +93,7 @@ class ProjectCollection():
         
         doc_rank.sort(key=lambda x: x[1], reverse = True)
         
-        return(doc_rank)
+        return(doc_rank[0:(top+1)])
         #return(np.sort(np.array(doc_rank), axis=0)[::-1])
 
 
@@ -107,12 +111,39 @@ class Project():
     
     def __init__(self, project_dict):
         self.pid = project_dict['id']
-        self.blurb = re.sub(u'[\u2019\']', '', project_dict['blurb'].lower())
-        self.blurb_tokens = np.array(wordpunct_tokenize(self.blurb))
-        self.stem = None
-        self.author = author
-        self.year = year
+        self.blurb = project_dict['blurb'].lower()
+        self.deadline = project_dict['deadline']
+        self.category = project_dict['category'] 
+        self.reward_backer_tup = project_dict['reward_backer_tup'] 
+        #self.risk = project_dict['risk'][0].lower()
+        self.risk = re.sub(u'[\u2019\']', '', self.pre_process(project_dict['risk']))
+        self.risk_tokens = np.array(wordpunct_tokenize(self.risk))
+        self.name = project_dict['name'] 
+        self.url = project_dict['url'] 
+        self.launched_at = project_dict['launched_at'] 
+        self.pledged = project_dict['pledged']
+        self.title = project_dict['title']
+        self.no_dollars_raised = project_dict['no_dollars_raised']
+        self.currency = project_dict['currency']
+        self.no_backers = project_dict['no_backers']
+        self.state = project_dict['state']
+        self.deadline = project_dict['deadline']
+        self.location = project_dict['location']
+        self.backers_count = project_dict['backers_count']
+        self.creator_url = project_dict['creator_url']
+        self.backers_count = project_dict['backers_count']
+        self.spotlight = project_dict['spotlight']
+        self.goal = project_dict['goal']
+        self.author = project_dict['author']
+        self.stems = None
         
+        
+    def pre_process(self, list_text):
+        sentence = ""
+        for sent in list_text:
+            sentence += " " + sent.lower()
+        return sentence
+            
     def tf(self, wordlist):
         
         """
@@ -122,7 +153,7 @@ class Project():
         count = np.zeros(len(wordlist))
         
         for wid, word in np.ndenumerate(wordlist):
-            count[wid] = (self.blurb_tokens == word).sum()
+            count[wid] = (self.risk_tokens == word).sum()
         return count
         
     
@@ -135,7 +166,7 @@ class Project():
         is_word = np.zeros(len(wordlist))
         
         for wid, word in np.ndenumerate(wordlist):
-            if word in self.blurb_tokens:
+            if word in self.risk_tokens:
                 is_word[wid] = 1
         return is_word
             
@@ -145,7 +176,7 @@ class Project():
         strip out non-alpha tokens and length one tokens
         """
 
-        self.blurb_tokens = np.array([t for t in self.blurb_tokens if (t.isalpha() and len(t) > length)])
+        self.risk_tokens = np.array([t for t in self.risk_tokens if (t.isalpha() and len(t) > length)])
 
 
     def stopword_remove(self, stopwords):
@@ -155,7 +186,7 @@ class Project():
         """
 
         
-        self.blurb_tokens = np.array([t for t in self.blurb_tokens if t not in stopwords])
+        self.risk_tokens = np.array([t for t in self.risk_tokens if t not in stopwords])
 
 
     def stem(self):
@@ -164,6 +195,6 @@ class Project():
         Stem tokens with Porter Stemmer.
         """
         
-        self.stems = n.array([PorterStemmer().stem(t) for t in self.blurb_tokens])
+        self.stems = np.array([PorterStemmer().stem(t) for t in self.risk_tokens])
 
 
