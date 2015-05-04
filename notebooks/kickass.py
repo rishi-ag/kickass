@@ -16,6 +16,8 @@ class ProjectCollection():
 
         self.N = len(self.docs)
         
+        self.docs_tokens = set()
+        
     def clean_docs(self, length):
         """ 
         Applies stopword removal, token cleaning to docs
@@ -42,8 +44,9 @@ class ProjectCollection():
         is_word_docs = np.array([doc.word_exists(dictionary) for doc in self.docs])
         
         asum = sum([is_word for is_word in is_word_docs])
-        asum = sum(asum)
-        if asum != 0:
+        asum_sum = sum(asum)
+        
+        if asum_sum != 0:
             idf_list = np.log(self.N / asum )
         else:
             idf_list = np.zeros(len(dictionary))
@@ -96,6 +99,13 @@ class ProjectCollection():
         return(doc_rank[0:(top+1)])
         #return(np.sort(np.array(doc_rank), axis=0)[::-1])
 
+        
+    def doc_term_dict(self):
+        
+        for doc in self.docs:
+            self.docs_tokens.update(doc.risk_tokens)
+        
+        return self.tf_idf(list(self.docs_tokens))
 
 
 import numpy as np
@@ -115,7 +125,6 @@ class Project():
         self.deadline = project_dict['deadline']
         self.category = project_dict['category'] 
         self.reward_backer_tup = project_dict['reward_backer_tup'] 
-        #self.risk = project_dict['risk'][0].lower()
         self.risk = re.sub(u'[\u2019\']', '', self.pre_process(project_dict['risk']))
         self.risk_tokens = np.array(wordpunct_tokenize(self.risk))
         self.name = project_dict['name'] 
@@ -135,7 +144,6 @@ class Project():
         self.spotlight = project_dict['spotlight']
         self.goal = project_dict['goal']
         self.author = project_dict['author']
-        self.stems = None
         
         
     def pre_process(self, list_text):
@@ -195,6 +203,6 @@ class Project():
         Stem tokens with Porter Stemmer.
         """
         
-        self.stems = np.array([PorterStemmer().stem(t) for t in self.risk_tokens])
+        self.risk_tokens = np.array([PorterStemmer().stem(t) for t in self.risk_tokens])
 
 
