@@ -16,11 +16,15 @@ class ProjectCollection():
 
         self.N = len(self.docs)
         
-        self.docs_tokens = set()
+        #stopword removal, token cleaning and stemming to docs
+        self.clean_docs(2)
+        
+        #creates a set of all doc tokens
+        self.docs_tokens = self.create_docs_tokens()
         
     def clean_docs(self, length):
         """ 
-        Applies stopword removal, token cleaning to docs
+        Applies stopword removal, token cleaning and stemming to docs
         """
         for doc in self.docs:
             doc.token_clean(length)
@@ -100,12 +104,68 @@ class ProjectCollection():
         #return(np.sort(np.array(doc_rank), axis=0)[::-1])
 
         
-    def doc_term_dict(self):
+    def create_docs_tokens(self):
+        
+        docs_tokens = set()
         
         for doc in self.docs:
-            self.docs_tokens.update(doc.risk_tokens)
+            docs_tokens.update(doc.risk_tokens)
+            
+        return docs_tokens
+    
+    def doc_term_mat(self):
+        #applies tf-idf weighting to docs_tokens
+        docs_list_tfidf = self.tf_idf(list(self.docs_tokens))
         
-        return self.tf_idf(list(self.docs_tokens))
+        #create lists of docids and their tfidf weighting with respect to docs_tokens
+        docs_id = []
+        docs_term_mat = []
+        for key, value in docs_list_tfidf.items():
+            docs_id.append(key)
+            docs_term_mat.append(value)
+            
+        return docs_id, docs_term_mat
+    
+    def svd(self, cutoff):
+        
+        docs_id, docs_term_mat = self.doc_term_mat()
+        
+        #apply svd to the doc - term matrix 
+        D, s, T = np.linalg.svd(np.array(docs_term_mat))
+               
+        #apply lower dimension rank approximation based on parameter cutoff
+        #if cut off  k between 0 and 1, then return k% singular values and singular vectors
+        #else return the first k singular valuesa nd vectors
+        
+        if cutoff != 1:
+            #calculate variance explained
+            var = np.cumsum(s ** 2) / sum(s ** 2)
+            
+            if (cutoff >= 0 and cutoff< 1):
+                
+                index = np.argmax(var > cutoff)
+                D = D[0:index]
+                s = s[0:index]
+                T = T[0:index]
+            elif cutoff > 1:
+                
+                D = D[0:cutoff]
+                s = s[0:cutoff]
+                T = T[0:cutoff]
+            
+        return (D, s, T)
+    
+    
+    def latent_doc_term_mat(self, cutoff):
+        D, s, T = self.svd(cutoff)
+        
+        shape_doc_term_mat = (np.shape(D)[0], np.shape(T)[0])
+        
+        S = np.zeros(shape_doc_term_mat)
+        
+        S[:shape_doc_term_mat[1], :shape_doc_term_mat[1]] = np.diag(s)
+        
+        np.dot(D, np.dot(S, T))
 
 
 import numpy as np

@@ -1,0 +1,3 @@
+ipython profile create
+c.IPKernelApp.matplotlib = "inline" 
+c.InlineBackend.figure_format = "svg"
