@@ -132,9 +132,9 @@ class ProjectCollection():
             
         return docs_id, docs_term_mat
     
-    def svd(self, cutoff):
+    def lsa(self, cutoff):
         """
-        The svd function performs a SVD analysis of the document term matrix of the collection of docs.
+        The lsa function performs a LSA of the document term matrix of the collection of docs.
         It takes a parameter cutoff which behaves the following way:
         1] if cutoff == 1, returns the U,s,V matrices of the entire document term matrix
         2] if 0 <= cutoff < 1, returns a lower dimension approximation of U, s, V that corresponds to 
@@ -182,11 +182,11 @@ class ProjectCollection():
         1] if cutoff == 1, returns the original document term  matrix
         2] if 0 <= cutoff < 1, returns a lower dimension approximation of the document term  matrix that corresponds to 
            cutoff % of the singular values
-        3] if cutoff > 1, returns a lower dimension approximation of the document term  matrix that corresopnds to the largest
+        3] if cutoff > 1, returns a lower dimension approximation of the document term  matrix that corresponds to the largest
            cutoff singular values
         
         """
-        docs_id, D, s, T = self.svd(cutoff)
+        docs_id, D, s, T = self.lsa(cutoff)
         
         S = np.diag(s)
         
