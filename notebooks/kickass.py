@@ -105,6 +105,9 @@ class ProjectCollection():
 
         
     def create_docs_tokens(self):
+        """
+        Creates a set of tokens from all documents
+        """
         
         docs_tokens = set()
         
@@ -114,6 +117,9 @@ class ProjectCollection():
         return docs_tokens
     
     def doc_term_mat(self):
+        """
+        Reurns a list of doccument ids and a document term matrix weighted by the tfidf weighting
+        """
         #applies tf-idf weighting to docs_tokens
         docs_list_tfidf = self.tf_idf(list(self.docs_tokens))
         
@@ -127,45 +133,85 @@ class ProjectCollection():
         return docs_id, docs_term_mat
     
     def svd(self, cutoff):
+        """
+        The svd function performs a SVD analysis of the document term matrix of the collection of docs.
+        It takes a parameter cutoff which behaves the following way:
+        1] if cutoff == 1, returns the U,s,V matrices of the entire document term matrix
+        2] if 0 <= cutoff < 1, returns a lower dimension approximation of U, s, V that corresponds to 
+           cutoff % of the singular values
+        3] if cutoff > 1, returns a lower dimension approximation of U, s, V that corresponds to the largest
+           cutoff singular values
         
-        docs_id, docs_term_mat = self.doc_term_mat()
+        """
+        if cutoff > self.N:
+            return "Error, cutoff is greater than singular values"
         
-        #apply svd to the doc - term matrix 
-        D, s, T = np.linalg.svd(np.array(docs_term_mat))
-               
-        #apply lower dimension rank approximation based on parameter cutoff
-        #if cut off  k between 0 and 1, then return k% singular values and singular vectors
-        #else return the first k singular valuesa nd vectors
-        
-        if cutoff != 1:
-            #calculate variance explained
-            var = np.cumsum(s ** 2) / sum(s ** 2)
-            
-            if (cutoff >= 0 and cutoff< 1):
-                
-                index = np.argmax(var > cutoff)
-                D = D[0:index]
-                s = s[0:index]
-                T = T[0:index]
-            elif cutoff > 1:
-                
-                D = D[0:cutoff]
-                s = s[0:cutoff]
-                T = T[0:cutoff]
-            
-        return (D, s, T)
-    
+        else:
+
+            docs_id, docs_term_mat = self.doc_term_mat()
+
+            #apply svd to the doc - term matrix 
+            D, s, T = np.linalg.svd(np.array(docs_term_mat))
+
+            #apply lower dimension rank approximation based on parameter cutoff
+            #if cut off  k between 0 and 1, then return ksingular values and singular vectors
+            #else return the first k singular valuesa nd vectors
+
+            if cutoff != 1:
+                #calculate variance explained
+                var = np.cumsum(s ** 2) / sum(s ** 2)
+
+                if (cutoff >= 0 and cutoff< 1):
+
+                    index = np.argmax(var > cutoff)
+                    D = D[:, 0:index]
+                    s = s[0:index]
+                    T = T[0:index, :]
+                elif cutoff > 1:
+
+                    D = D[:, 0:cutoff]
+                    s = s[0:cutoff]
+                    T = T[0:cutoff, :]
+
+            return (docs_id, D, s, T)
+
     
     def latent_doc_term_mat(self, cutoff):
-        D, s, T = self.svd(cutoff)
+        """
+        Returns a doc list and a lower dimesnion approximation of the document term value based on the cutoff
+        1] if cutoff == 1, returns the original document term  matrix
+        2] if 0 <= cutoff < 1, returns a lower dimension approximation of the document term  matrix that corresponds to 
+           cutoff % of the singular values
+        3] if cutoff > 1, returns a lower dimension approximation of the document term  matrix that corresopnds to the largest
+           cutoff singular values
         
-        shape_doc_term_mat = (np.shape(D)[0], np.shape(T)[0])
+        """
+        docs_id, D, s, T = self.svd(cutoff)
         
-        S = np.zeros(shape_doc_term_mat)
+        S = np.diag(s)
         
-        S[:shape_doc_term_mat[1], :shape_doc_term_mat[1]] = np.diag(s)
+        return docs_id, np.dot(D, np.dot(S, T))
+    
+    
+    def norm_matrix(self, mat):
+        """
+        Normalises a matrix of row vectors
         
-        np.dot(D, np.dot(S, T))
+        NOTE TO SELF: extend method to normalise single vectors
+        """
+        norm = np.sqrt(np.square(mat).sum(axis = 1))
+        return  (mat / norm[:,None])
+    
+    def cosine_sim(self, dt_mat):
+        """
+        calculates cosine similarties of documents in a doc term matrix
+        
+        NOTE TO SELF: extend mehod to handle similarities between in sample docs and a out of sample doc
+        """
+        norm = self.norm_matrix(dt_mat)
+        return np.dot(norm, norm.T)
+        
+        
 
 
 import numpy as np
