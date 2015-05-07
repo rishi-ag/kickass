@@ -231,7 +231,7 @@ class Project():
         self.deadline = project_dict['deadline']
         self.category = project_dict['category'] 
         self.reward_backer_tup = project_dict['reward_backer_tup'] 
-        self.text = re.sub(u'[\u2019\']', '', self.pre_process(project_dict['risk']))
+        self.text = project_dict['full_description'].lower() + " " + project_dict['risk'].lower()
         self.tokens = np.array(wordpunct_tokenize(self.text))
         self.name = project_dict['name'] 
         self.url = project_dict['url'] 
@@ -266,8 +266,9 @@ class Project():
         
         count = np.zeros(len(wordlist))
         
-        for wid, word in np.ndenumerate(wordlist):
-            count[wid] = (self.tokens == word).sum()
+        if len(self.tokens) > 0:
+            for wid, word in np.ndenumerate(wordlist):
+                count[wid] = (self.tokens == word).sum()
         return count
         
     
