@@ -112,7 +112,7 @@ class ProjectCollection():
         docs_tokens = set()
         
         for doc in self.docs:
-            docs_tokens.update(doc.risk_tokens)
+            docs_tokens.update(doc.tokens)
             
         return docs_tokens
     
@@ -231,8 +231,8 @@ class Project():
         self.deadline = project_dict['deadline']
         self.category = project_dict['category'] 
         self.reward_backer_tup = project_dict['reward_backer_tup'] 
-        self.risk = re.sub(u'[\u2019\']', '', self.pre_process(project_dict['risk']))
-        self.risk_tokens = np.array(wordpunct_tokenize(self.risk))
+        self.text = re.sub(u'[\u2019\']', '', self.pre_process(project_dict['risk']))
+        self.tokens = np.array(wordpunct_tokenize(self.text))
         self.name = project_dict['name'] 
         self.url = project_dict['url'] 
         self.launched_at = project_dict['launched_at'] 
@@ -267,7 +267,7 @@ class Project():
         count = np.zeros(len(wordlist))
         
         for wid, word in np.ndenumerate(wordlist):
-            count[wid] = (self.risk_tokens == word).sum()
+            count[wid] = (self.tokens == word).sum()
         return count
         
     
@@ -280,7 +280,7 @@ class Project():
         is_word = np.zeros(len(wordlist))
         
         for wid, word in np.ndenumerate(wordlist):
-            if word in self.risk_tokens:
+            if word in self.tokens:
                 is_word[wid] = 1
         return is_word
             
@@ -290,7 +290,7 @@ class Project():
         strip out non-alpha tokens and length one tokens
         """
 
-        self.risk_tokens = np.array([t for t in self.risk_tokens if (t.isalpha() and len(t) > length)])
+        self.tokens = np.array([t for t in self.tokens if (t.isalpha() and len(t) > length)])
 
 
     def stopword_remove(self, stopwords):
@@ -300,7 +300,7 @@ class Project():
         """
 
         
-        self.risk_tokens = np.array([t for t in self.risk_tokens if t not in stopwords])
+        self.tokens = np.array([t for t in self.tokens if t not in stopwords])
 
 
     def stem(self):
@@ -309,6 +309,6 @@ class Project():
         Stem tokens with Porter Stemmer.
         """
         
-        self.risk_tokens = np.array([PorterStemmer().stem(t) for t in self.risk_tokens])
+        self.tokens = np.array([PorterStemmer().stem(t) for t in self.tokens])
 
 
