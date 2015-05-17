@@ -229,7 +229,8 @@ class Project():
         self.pid = project_dict['id']
         self.blurb = project_dict['blurb'].lower()
         self.deadline = project_dict['deadline']
-        self.category = project_dict['category'] 
+        self.category_id = project_dict['category']['id']
+        self.category_desc = re.sub('/.*', '', project_dict['category']['slug'])
         self.reward_backer_tup = project_dict['reward_backer_tup'] 
         self.text = project_dict['full_description'].lower() + " " + project_dict['risk'].lower()
         self.tokens = np.array(wordpunct_tokenize(self.text))
